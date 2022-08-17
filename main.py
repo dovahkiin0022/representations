@@ -6,8 +6,9 @@
 
 def print_hi():
     # Use a breakpoint in the code line below to debug your script.
-    from PTR_Encoder.encoder import Encoder
-    print(Encoder(1,1)) # Press ⌘F8 to toggle the breakpoint.
+    from modules.encoder import Encoder
+    from modules.function import check_cuda
+    print(check_cuda()) # Press ⌘F8 to toggle the breakpoint.
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
