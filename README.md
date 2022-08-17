@@ -6,4 +6,6 @@ Plots for paper 'Prediction of mechanical properties of High Entropy Alloys (HEA
 # Installation
 
 Run the following command to install dependencies
+```
 conda env create -f environment.yml
+```
