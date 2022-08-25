@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import cm, colors
 
 from pymatgen.core.periodic_table import Element
+
 def periodic_table_heatmap(
     elemental_data,
     cbar_label="",
@@ -17,7 +18,8 @@ def periodic_table_heatmap(
     max_row=9,
     readable_fontcolor=False,
     alpha=0.65,
-    save_name = None
+    save_name = None,
+    dpi=300
 ):
     """
     A static method that generates a heat map overlaid on a periodic table.
@@ -160,6 +162,6 @@ def periodic_table_heatmap(
         plt.show()
 
     if save_name is not None:
-        plt.savefig(save_name)
+        plt.savefig(save_name, dpi=dpi)
 
     return plt
