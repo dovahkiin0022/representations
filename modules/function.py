@@ -2,6 +2,7 @@ import re
 import numpy as np
 import copy
 import os
+from composition_features import get_PTR_features
 import torch
 from pymatgen import core as mg
 
@@ -159,15 +160,7 @@ def decode_img(image,property_list,element_name):
             comp_dict[element_name[i]] = image[0][0][row[j]][col[j]]
   return mg.Composition(comp_dict)
 
-def get_PTR_features(comps,pca,trained_enc,property_list,element_name,RC,cuda=check_cuda()):
-  comps_dset = data_generator_img(comps,property_list,element_name,RC)
-  test = torch.from_numpy(comps_dset.real_data.astype('float32'))
-  if cuda:
-    test = test.cuda()
-  with torch.no_grad():
-    test_encoding = trained_enc(test).to('cpu').detach().numpy()
-  X = pca.transform(test_encoding)
-  return test_encoding
+
 
 def get_hardness(comps,model,pca,scaler_y,trained_enc,property_list,element_name,RC,cuda=check_cuda(),method='ptr'):
   if method=='ptr':
