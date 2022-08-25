@@ -2,9 +2,12 @@ import re
 import numpy as np
 import copy
 import os
-from composition_features import get_PTR_features
 import torch
 from pymatgen import core as mg
+
+def convert_hv_to_gpa(hv_list):
+  gpa_list = [x*0.009807 for x in hv_list]
+  return np.array(gpa_list)
 
 def check_cuda():
   if torch.cuda.is_available():
@@ -160,7 +163,15 @@ def decode_img(image,property_list,element_name):
             comp_dict[element_name[i]] = image[0][0][row[j]][col[j]]
   return mg.Composition(comp_dict)
 
-
+def get_PTR_features(comps,pca,trained_enc,property_list,element_name,RC,cuda=check_cuda()):
+  comps_dset = data_generator_img(comps,property_list,element_name,RC)
+  test = torch.from_numpy(comps_dset.real_data.astype('float32'))
+  if cuda:
+    test = test.cuda()
+  with torch.no_grad():
+    test_encoding = trained_enc(test).to('cpu').detach().numpy()
+  X = pca.transform(test_encoding)
+  return test_encoding
 
 def get_hardness(comps,model,pca,scaler_y,trained_enc,property_list,element_name,RC,cuda=check_cuda(),method='ptr'):
   if method=='ptr':
@@ -171,4 +182,34 @@ def get_hardness(comps,model,pca,scaler_y,trained_enc,property_list,element_name
   return predicted_hv
 
 
+def stratify_data(data, min, max, by):
+  samples_per_bin, bins, = np.histogram(data, bins=np.arange(min,max,by))
+  return np.digitize(data,bins) 
 
+
+def get_elem_count(comp_list):
+  elem_dict = {}
+  for c in comp_list:
+    if not type(c) == mg.Composition:
+      c = mg.Composition(c)
+      for elems in c.get_el_amt_dict().keys():
+        if elems not in elem_dict.keys():
+          elem_dict[elems] = 1
+        else:
+          elem_dict[elems] += 1
+  return elem_dict
+
+def get_number_of_components(comp_list):
+  count_list = []
+  for c in comp_list:
+    if not type(c) == mg.Composition:
+      c = mg.Composition(c)
+      count_list.append(len(list(c.get_el_amt_dict().keys())))
+  return count_list
+
+def get_comp_count_over_bins(vals, nbins=10):
+    max_dig = len(str(int(max(abs(x) for x in vals))))
+    return max_dig, np.linspace(np.round(vals.min()),np.round(vals.max()), nbins)
+
+def pymatgen_comp(comp_list):
+  return [mg.Composition(x) for x in comp_list]
