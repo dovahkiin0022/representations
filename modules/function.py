@@ -2,8 +2,30 @@ import re
 import numpy as np
 import copy
 import os
+import pickle
+import joblib
 import torch
 from pymatgen import core as mg
+from .encoder import Encoder,Identity
+
+gfa_dataset_file = 'gfa_dataset.txt'
+z_row_column_file = 'Z_row_column.txt'
+element_property_file = 'element_property.txt'
+common_path = "Files_from_GTDL_paper/{}" 
+gfa_dataset = pickle.load(open(common_path.format(gfa_dataset_file), 'rb'))  
+RC = pickle.load(open(common_path.format(z_row_column_file), 'rb')) 
+new_index=[int(i[4]) for i in RC]#new order 
+Z_row_column = pickle.load(open(common_path.format(z_row_column_file), 'rb'))
+[property_name_list,property_list,element_name,_]=pickle.load(open(common_path.format(element_property_file), 'rb'))
+
+saved_models_path = 'saved_models'
+type = 'PTR'
+filename = 'PTR_Encoder.pt'
+if os.path.exists(f'{saved_models_path}/{type}/{filename}'):
+    PTR_encoder =  joblib.load(f'{saved_models_path}/{type}/{filename}')
+else:
+    print('No file found!')
+PTR_encoder.mapf = Identity()
 
 def convert_hv_to_gpa(hv_list):
   gpa_list = [x*0.009807 for x in hv_list]
@@ -88,6 +110,42 @@ def PTR(i,property_list,element_name,Z_row_column):#periodical table representat
 
     return [X,X_BMG],Y 
 
+class data_generator_vec(object):
+    def __init__(self, comps):
+
+        #with open(csv_file, 'r') as fid:
+            #l = fid.readlines()
+        #data = [x.strip().split(',')[1] for x in l]
+        #data.remove('Composition')
+
+        #remove single elements from dataset, want only HEAs. Also keep unqiue compositions
+
+        all_eles = []
+        for c in comps:
+            all_eles += list(c.get_el_amt_dict().keys())
+        eles = np.array(sorted(list(set(all_eles))))
+
+        self.elements = eles
+        self.size = len(eles)
+        self.length = len(comps)
+
+        all_vecs = np.zeros([len(comps), len(self.elements)])
+        for i, c in enumerate(comps):
+            for k, v in c.get_el_amt_dict().items():
+                j = np.argwhere(eles == k)
+                all_vecs[i, j] = v
+        all_vecs = all_vecs / np.sum(all_vecs, axis=1).reshape(-1, 1)
+        self.real_data = np.array(all_vecs, dtype=np.float32)
+
+    def sample(self, N):
+        idx = np.random.choice(np.arange(self.length), N, replace=False)
+        data = self.real_data[idx]
+
+        return np.array(data, dtype=np.float32),idx
+    
+    def elements(self):
+      return eles
+
 class data_generator_gfa(object):
     def __init__(self, comps, gfa_dataset):
 
@@ -163,23 +221,21 @@ def decode_img(image,property_list,element_name):
             comp_dict[element_name[i]] = image[0][0][row[j]][col[j]]
   return mg.Composition(comp_dict)
 
-def get_PTR_features(comps,pca,trained_enc,property_list,element_name,RC,cuda=check_cuda()):
+def get_PTR_features(comps,trained_enc = PTR_encoder,property_list = property_list,
+element_name = element_name,RC = RC,cuda=check_cuda()):
+  comps = pymatgen_comp(comps)
   comps_dset = data_generator_img(comps,property_list,element_name,RC)
   test = torch.from_numpy(comps_dset.real_data.astype('float32'))
   if cuda:
     test = test.cuda()
   with torch.no_grad():
     test_encoding = trained_enc(test).to('cpu').detach().numpy()
-  X = pca.transform(test_encoding)
   return test_encoding
 
-def get_hardness(comps,model,pca,scaler_y,trained_enc,property_list,element_name,RC,cuda=check_cuda(),method='ptr'):
-  if method=='ptr':
-    X = get_PTR_features(comps,pca,trained_enc,property_list,element_name,RC,cuda)
-  else:
-    return 'Not a valid method!'
-  predicted_hv = scaler_y.inverse_transform(model.predict(X).reshape(-1,1))
-  return predicted_hv
+def get_vectorized_featues(comps):
+  comps = pymatgen_comp(comps)
+  dset = data_generator_vec(comps)
+  return dset.real_data, dset.elements
 
 
 def stratify_data(data, min, max, by):
