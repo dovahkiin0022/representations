@@ -20,3 +20,10 @@ class Encoder(nn.Module):
     x = self.pool(x)
     x = x.view(x.size(0),-1)
     return torch.nn.Sigmoid()(self.mapf(x))
+
+class Identity(nn.Module):
+    def __init__(self):
+        super(Identity, self).__init__()
+        
+    def forward(self, x):
+        return x
