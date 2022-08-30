@@ -111,7 +111,7 @@ def PTR(i,property_list,element_name,Z_row_column):#periodical table representat
     return [X,X_BMG],Y 
 
 class data_generator_vec(object):
-    def __init__(self, comps):
+    def __init__(self, comps, el_list = []):
 
         #with open(csv_file, 'r') as fid:
             #l = fid.readlines()
@@ -120,11 +120,14 @@ class data_generator_vec(object):
 
         #remove single elements from dataset, want only HEAs. Also keep unqiue compositions
 
-        all_eles = []
-        for c in comps:
+        if len(el_list) == 0:
+          all_eles = []
+          for c in comps:
             all_eles += list(c.get_el_amt_dict().keys())
-        eles = np.array(sorted(list(set(all_eles))))
-
+          eles = np.array(sorted(list(set(all_eles))))
+        else:
+          eles = np.array(el_list)
+          
         self.elements = eles
         self.size = len(eles)
         self.length = len(comps)
@@ -221,21 +224,7 @@ def decode_img(image,property_list,element_name):
             comp_dict[element_name[i]] = image[0][0][row[j]][col[j]]
   return mg.Composition(comp_dict)
 
-def get_PTR_features(comps,trained_enc = PTR_encoder,property_list = property_list,
-element_name = element_name,RC = RC,cuda=check_cuda()):
-  comps = pymatgen_comp(comps)
-  comps_dset = data_generator_img(comps,property_list,element_name,RC)
-  test = torch.from_numpy(comps_dset.real_data.astype('float32'))
-  if cuda:
-    test = test.cuda()
-  with torch.no_grad():
-    test_encoding = trained_enc(test).to('cpu').detach().numpy()
-  return test_encoding
 
-def get_vectorized_featues(comps):
-  comps = pymatgen_comp(comps)
-  dset = data_generator_vec(comps)
-  return dset.real_data, dset.elements
 
 
 def stratify_data(data, min, max, by):

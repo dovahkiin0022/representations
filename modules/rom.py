@@ -9,7 +9,7 @@ from .function import pymatgen_comp
 from pymatgen import core as mg
 
 
-bcc_file,fcc_file,hcp_file,mass_file,ppk_file,vol_file = sorted(glob.glob('dataset/*.pkl'))
+bcc_file,fcc_file,hcp_file,mass_file,ppk_file,vol_file = sorted(glob.glob('dataset/elemental_prop/*.pkl'))
 with open(bcc_file,'rb') as fid:
     bcc_dict = pickle.load(fid)
 with open(fcc_file,'rb') as fid:
@@ -305,21 +305,5 @@ def calc_grp_dev(comp,group_dict=grp_dict):
         std_grp += el_dict[el]*np.abs(temp_grp - grp)
     return np.sqrt(std_grp/len(el_dict_keys))
 
-def properties_from_comp(comps):
-    prop_arr = np.zeros((len(comps),8)) #hardcoded as of now
-    key = ['Atomic wt. dev.','Column dev.','Specific dens. dev.','VEC','Melt. T.','Bulk mod.','Delta S','Density']
-    for i,c in enumerate(comps):
-        if type(c) != mg.Composition:
-            c = mg.Composition(c)
-        adaw = calc_weight_dev(c)
-        adc = calc_grp_dev(c)
-        adsv = calc_specific_dens_dev(c)
-        vec = calc_vec(c)
-        melt_t = calc_melting_t(c)
-        bulk = calc_bulk(c)
-        delta_s = calc_entropy_mixing(c)
-        density = get_rom_density(c)
-        prop_arr[i] = [adaw,adc,adsv,vec,melt_t,bulk,delta_s,density]
-    return prop_arr, key  
 
 
