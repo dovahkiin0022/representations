@@ -19,17 +19,6 @@ new_index=[int(i[4]) for i in RC]#new order
 Z_row_column = pickle.load(open(common_path.format(z_row_column_file), 'rb'))
 [property_name_list,property_list,element_name,_]=pickle.load(open(common_path.format(element_property_file), 'rb'))
 
-saved_models_path = 'saved_models'
-type = 'PTR'
-filename = 'PTR_Encoder.pt'
-if os.path.exists(f'{saved_models_path}/{type}/{filename}'):
-    PTR_encoder =  joblib.load(f'{saved_models_path}/{type}/{filename}')
-else:
-    print('No file found!')
-PTR_encoder.mapf = Identity()
-
-saveloc = 'saved_models/Encoders'
-
 periodic_table_file = 'dataset/periodic_table.csv'
 periodic_df = pd.read_csv(periodic_table_file)
 atomic_number_order = periodic_df['Symbol'].values[:103] #only the first 103 elements
@@ -39,17 +28,24 @@ with open(alternate_orders_file,'rb') as fid:
     alternate_order_dict = pickle.load(fid)
 pettifor_order = alternate_order_dict['pettifor']
 modified_pettifor_order = alternate_order_dict['modified_pettifor']
+random_order = np.random.RandomState(0).permutation(atomic_number_order)
 
 
-def get_PTR_features(comps,trained_enc = PTR_encoder,property_list = property_list,
-element_name = element_name,RC = RC,cuda=check_cuda()):
+def get_PTR_features(comps,cuda=check_cuda()):
+  saved_models_path = 'saved_models/best_models'
+  filename = '2DEncoder_PTR.pt'
+  if os.path.exists(f'{saved_models_path}/{filename}'):
+    PTR_encoder =  joblib.load(f'{saved_models_path}/{filename}')
+  else:
+    print('No file found!')
+  PTR_encoder.mapf = Identity()
   comps = pymatgen_comp(comps)
-  comps_dset = data_generator_img(comps,property_list,element_name,RC)
+  comps_dset = data_generator_img(comps)
   test = torch.from_numpy(comps_dset.real_data.astype('float32'))
   if cuda:
     test = test.cuda()
   with torch.no_grad():
-    test_encoding = trained_enc(test).to('cpu').detach().numpy()
+    test_encoding = PTR_encoder(test).to('cpu').detach().numpy()
   return test_encoding
 
 
@@ -89,12 +85,18 @@ def get_modified_pettifor_features(comps,el_list = modified_pettifor_order):
     dset = data_generator_vec(comps,el_list)
     return dset.real_data.reshape(-1,1,len(el_list)), dset.elements
 
+def get_random_features(comps, el_list = random_order):
+    comps = pymatgen_comp(comps)
+    dset = data_generator_vec(comps,el_list)
+    return dset.real_data.reshape(-1,1,len(el_list)), dset.elements
+
 def enc1d_features(comps, name, cuda=check_cuda()):
-  types = ['atomic','pettifor','mod_pettifor']
+  types = ['atomic','pettifor','mod_pettifor','random']
+  location = 'saved_models/best_models'
   if name not in types:
     print('Invalid format')
   else:
-    encoder1D = joblib.load(os.path.join(saveloc,'Encoder1D_{}.pt'.format(name)))
+    encoder1D = joblib.load(os.path.join(location,'1DEncoder_{}.pt'.format(name)))
     encoder1D.mapf = Identity()
   comps = pymatgen_comp(comps)
   if name == 'atomic':
@@ -103,9 +105,13 @@ def enc1d_features(comps, name, cuda=check_cuda()):
     formatted_comps,_ = get_pettifor_features(comps)
   elif name == 'mod_pettifor':
     formatted_comps,_ = get_modified_pettifor_features(comps)
+  elif name == 'random':
+    formatted_comps,_ = get_random_features(comps)
   test = torch.from_numpy(formatted_comps.astype('float32'))
   if cuda:
     test = test.cuda()
   with torch.no_grad():
     test_encoding = encoder1D(test).to('cpu').detach().numpy()
   return test_encoding
+
+

@@ -7,6 +7,7 @@ import joblib
 import torch
 from pymatgen import core as mg
 from .encoder import Encoder,Identity
+from sklearn import metrics
 
 gfa_dataset_file = 'gfa_dataset.txt'
 z_row_column_file = 'Z_row_column.txt'
@@ -49,26 +50,7 @@ def special_formatting(comp):
   return string
 
 
-def image_gfa(i,property_list,element_name,RC):#PTR psuedoimage using special formula
-    #i0='Mo.5Nb.5'
-    #i=i0.split(' ')[0]
-
-    X= [[[0.0 for ai in range(18)]for aj in range(9)] for ak in range(1) ]
-    gfa=re.findall('\[[a-c]?\]',i)[0]  
-    tx1_element=re.findall('[A-Z][a-z]?', i)#[B, Fe, P,No]
-    tx2_temp=re.findall('\$_{[0-9.]+}\$', i)#[$_{[50]}$, ] [50 30 20]
-    tx2_value=[float(re.findall('[0-9.]+', i_tx2)[0]) for i_tx2 in tx2_temp]
-    for j in range(len(tx2_value)):
-        index=int(property_list[element_name.index(tx1_element[j])][1])#atomic number
-        xi=int(RC[index-1][1])#row num
-        xj=int(RC[index-1][2])#col num
-        X[0][xi-1][xj-1]=tx2_value[j]/100.0
-    
-    #properties at the first row, from 5th to 8th column for hardness
-    X = np.array(X)
-    return X
-
-def image(i,property_list,element_name,RC):#PTR psuedoimage using special formula
+def image(i,property_list = property_list,element_name = element_name,RC = RC):#PTR psuedoimage using special formula
     #i0='Mo.5Nb.5'
     #i=i0.split(' ')[0]
     X= [[[0.0 for ai in range(18)]for aj in range(9)] for ak in range(1) ]  
@@ -85,7 +67,24 @@ def image(i,property_list,element_name,RC):#PTR psuedoimage using special formul
     X = np.array(X)
     return X
 
-def PTR(i,property_list,element_name,Z_row_column):#periodical table representation
+def image_modified(i0,property_list = property_list,element_name = element_name,RC = RC):#PTR psuedoimage using special formula
+    #i0='Mo.5Nb.5'
+    i=i0.split(' ')[1]
+    X= [[[0.0 for ai in range(18)]for aj in range(9)] for ak in range(1) ]  
+    tx1_element=re.findall('[A-Z][a-z]?', i)#[B, Fe, P,No]
+    tx2_temp=re.findall('[0-9.]+', i)#[$_{[50]}$, ] [50 30 20]
+    tx2_value=[float(re.findall('[0-9.]+', i_tx2)[0]) for i_tx2 in tx2_temp]
+    for j in range(len(tx2_value)):
+        index=int(property_list[element_name.index(tx1_element[j])][1])#atomic number
+        xi=int(RC[index-1][1])#row num
+        xj=int(RC[index-1][2])#col num
+        X[0][xi-1][xj-1]=tx2_value[j]
+
+    #properties at the first row, from 5th to 8th column for hardness
+    X = np.array(X)
+    return X
+
+def PTR(i,property_list = property_list,element_name = element_name,Z_row_column = Z_row_column):#periodical table representation
     #i='4 La$_{66}$Al$_{14}$Cu$_{10}$Ni$_{10}$ [c][15]'
     X= [[[0.0 for ai in range(18)]for aj in range(9)] for ak in range(1) ]
     gfa=re.findall('\[[a-c]?\]',i)[0]
@@ -109,6 +108,29 @@ def PTR(i,property_list,element_name,Z_row_column):#periodical table representat
         Y=[1,1]
 
     return [X,X_BMG],Y 
+
+def PTR_modified(i,property_list = property_list,element_name = element_name,Z_row_column = Z_row_column):#periodical table representation
+    #i='4 La$_{66}$Al$_{14}$Cu$_{10}$Ni$_{10}$ [c][15]'
+    X= [[[0.0 for ai in range(18)]for aj in range(9)] for ak in range(1) ]
+    gfa=re.findall('\[[a-c]?\]',i)[0]
+    
+    tx1_element=re.findall('[A-Z][a-z]?', i)#[B, Fe, P,No]
+    tx2_temp=re.findall('\$_{[0-9.]+}\$', i)#[$_{[50]}$, ] [50 30 20]
+    tx2_value=[float(re.findall('[0-9.]+', i_tx2)[0]) for i_tx2 in tx2_temp]
+    for j in range(len(tx2_value)):
+        index=int(property_list[element_name.index(tx1_element[j])][1])#atomic number Z
+        xi=int(Z_row_column[index-1][1])#row num
+        xj=int(Z_row_column[index-1][2])#col num
+        X[0][xi-1][xj-1]=tx2_value[j]/100.0
+    
+    if gfa=='[c]':
+        Y=[0]
+    if gfa=='[b]': 
+        Y=[1]
+    if gfa=='[a]' :
+        Y=[1]
+
+    return [X],Y 
 
 class data_generator_vec(object):
     def __init__(self, comps, el_list = []):
@@ -161,7 +183,7 @@ class data_generator_gfa(object):
         self.length = len(comps)
         all_imgs = []
         for i in range(len(gfa_dataset)):
-          c_img = image_gfa(gfa_dataset[i])
+          c_img = image(gfa_dataset[i])
           all_imgs.append(c_img)
         
         self.real_data = np.array(all_imgs).reshape(-1,1,9,18)
@@ -173,7 +195,7 @@ class data_generator_gfa(object):
         return np.array(data, dtype=np.float32)
 
 class data_generator_img(object):
-    def __init__(self, comps,property_list,element_name,RC):
+    def __init__(self, comps):
 
         #with open(csv_file, 'r') as fid:
             #l = fid.readlines()
@@ -195,7 +217,7 @@ class data_generator_img(object):
 
         all_imgs = []
         for i in range(len(sp_comps)):
-          c_img = image(sp_comps[i],property_list,element_name,RC)
+          c_img = image(sp_comps[i])
           all_imgs.append(c_img)
         
         self.real_data = np.array(all_imgs).reshape(-1,1,9,18)
@@ -210,7 +232,7 @@ class data_generator_img(object):
       return eles
 
 
-def decode_img(image,property_list,element_name):
+def decode_img(image,property_list = property_list,element_name=element_name):
   """from image, get the composition"""
   image = image.reshape(-1,1,9,18)
   row,col = np.nonzero(image)[2:]
@@ -260,3 +282,14 @@ def pymatgen_comp(comp_list):
   return [mg.Composition(x) for x in comp_list]
 
 
+def get_metrics(true_labels, predicted_labels):
+    accuracy=np.round(metrics.accuracy_score(true_labels,predicted_labels),4)
+    precision=np.round(metrics.precision_score(true_labels, predicted_labels,average='weighted'),4)
+    recall= np.round(metrics.recall_score(true_labels,predicted_labels,average='weighted'),4)
+    F1=np.round(metrics.f1_score(true_labels,predicted_labels,average='weighted'),4)
+                                           
+#    print('Accuracy:', accuracy)
+#    print('Precision:', precision)
+#    print('Recall:', recall)
+#    print('F1 Score:', F1)
+    return [accuracy,precision,recall,F1]
