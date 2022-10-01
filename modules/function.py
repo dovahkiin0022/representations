@@ -86,6 +86,7 @@ def image_modified(i0,property_list = property_list,element_name = element_name,
 
 def PTR(i,property_list = property_list,element_name = element_name,Z_row_column = Z_row_column):#periodical table representation
     #i='4 La$_{66}$Al$_{14}$Cu$_{10}$Ni$_{10}$ [c][15]'
+    
     X= [[[0.0 for ai in range(18)]for aj in range(9)] for ak in range(1) ]
     gfa=re.findall('\[[a-c]?\]',i)[0]
     
@@ -98,7 +99,7 @@ def PTR(i,property_list = property_list,element_name = element_name,Z_row_column
         xj=int(Z_row_column[index-1][2])#col num
         X[0][xi-1][xj-1]=tx2_value[j]/100.0
     X_BMG=copy.deepcopy(X)
-    X_BMG[0][0][8]=1.0 #processing parameter
+    process = [0,1]
     
     if gfa=='[c]':
         Y=[0,0]
@@ -107,7 +108,7 @@ def PTR(i,property_list = property_list,element_name = element_name,Z_row_column
     if gfa=='[a]' :
         Y=[1,1]
 
-    return [X,X_BMG],Y 
+    return [X,X_BMG],process,Y 
 
 def PTR_modified(i,property_list = property_list,element_name = element_name,Z_row_column = Z_row_column):#periodical table representation
     #i='4 La$_{66}$Al$_{14}$Cu$_{10}$Ni$_{10}$ [c][15]'
@@ -254,12 +255,12 @@ def stratify_data(data, min, max, by):
   return np.digitize(data,bins) 
 
 
-def get_elem_count(comp_list):
+def get_elem_count(comp_list:list):
   elem_dict = {}
+  
   for c in comp_list:
-    if not type(c) == mg.Composition:
-      c = mg.Composition(c)
-      for elems in c.get_el_amt_dict().keys():
+    c = mg.Composition(c)
+    for elems in c.get_el_amt_dict().keys():
         if elems not in elem_dict.keys():
           elem_dict[elems] = 1
         else:
@@ -293,3 +294,27 @@ def get_metrics(true_labels, predicted_labels):
 #    print('Recall:', recall)
 #    print('F1 Score:', F1)
     return [accuracy,precision,recall,F1]
+
+
+
+def alt_read_gfa_dataset(dataset = gfa_dataset,to_discard = ['Rf','Db','Sg','Bh','Hs']):
+    str_comp = []
+    Y = []
+    p = []
+    for i in  dataset:
+        p.extend([0,1])
+        gfa=re.findall('\[[a-c]?\]',i)[0]
+        tx1_element=re.findall('[A-Z][a-z]?', i)#[B, Fe, P,No]
+        tx2_temp=re.findall('\$_{[0-9.]+}\$', i)#[$_{[50]}$, ] [50 30 20]
+        tx2_value=[float(re.findall('[0-9.]+', i_tx2)[0]) for i_tx2 in tx2_temp]
+        test = ''.join([x+str(y) for x,y in zip(tx1_element,tx2_value)])
+        if gfa=='[c]':
+            y= [0,0]
+        if gfa=='[b]':
+             y = [1,0]
+        if gfa == '[a]': 
+            y = [1,1]
+        if len(set(tx1_element).intersection(set(to_discard))) == 0:
+            str_comp.extend([test]*2)
+            Y.extend(y)
+    return pymatgen_comp(str_comp),Y, p

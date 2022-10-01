@@ -28,7 +28,7 @@ with open(alternate_orders_file,'rb') as fid:
     alternate_order_dict = pickle.load(fid)
 pettifor_order = alternate_order_dict['pettifor']
 modified_pettifor_order = alternate_order_dict['modified_pettifor']
-random_order = np.random.RandomState(0).permutation(atomic_number_order)
+random_order = sorted(atomic_number_order)
 
 
 def get_PTR_features(comps,cuda=check_cuda()):
@@ -38,14 +38,14 @@ def get_PTR_features(comps,cuda=check_cuda()):
     PTR_encoder =  joblib.load(f'{saved_models_path}/{filename}')
   else:
     print('No file found!')
-  PTR_encoder.mapf = Identity()
+  #PTR_encoder.mapf = Identity()
   comps = pymatgen_comp(comps)
   comps_dset = data_generator_img(comps)
   test = torch.from_numpy(comps_dset.real_data.astype('float32'))
   if cuda:
     test = test.cuda()
   with torch.no_grad():
-    test_encoding = PTR_encoder(test).to('cpu').detach().numpy()
+    test_encoding = PTR_encoder.hidden_rep(test).to('cpu').detach().numpy()
   return test_encoding
 
 
@@ -90,6 +90,11 @@ def get_random_features(comps, el_list = random_order):
     dset = data_generator_vec(comps,el_list)
     return dset.real_data.reshape(-1,1,len(el_list)), dset.elements
 
+def get_random_features_dense(comps, el_list = random_order):
+    comps = pymatgen_comp(comps)
+    dset = data_generator_vec(comps,el_list)
+    return dset.real_data.reshape(-1, len(el_list)), dset.elements
+
 def enc1d_features(comps, name, cuda=check_cuda()):
   types = ['atomic','pettifor','mod_pettifor','random']
   location = 'saved_models/best_models'
@@ -97,7 +102,7 @@ def enc1d_features(comps, name, cuda=check_cuda()):
     print('Invalid format')
   else:
     encoder1D = joblib.load(os.path.join(location,'1DEncoder_{}.pt'.format(name)))
-    encoder1D.mapf = Identity()
+    #encoder1D.mapf = Identity()
   comps = pymatgen_comp(comps)
   if name == 'atomic':
     formatted_comps,_ = get_atomic_number_features(comps)
@@ -111,7 +116,7 @@ def enc1d_features(comps, name, cuda=check_cuda()):
   if cuda:
     test = test.cuda()
   with torch.no_grad():
-    test_encoding = encoder1D(test).to('cpu').detach().numpy()
+    test_encoding = encoder1D.hidden_rep(test).to('cpu').detach().numpy()
   return test_encoding
 
 

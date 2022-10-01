@@ -4,3 +4,4 @@ from . import encoder
 from . import function
 from . import plotting_functions
 from . import representation_schemes
+from . import model_select
