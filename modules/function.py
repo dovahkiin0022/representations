@@ -1,3 +1,6 @@
+
+
+
 import re
 import numpy as np
 import copy
@@ -8,6 +11,7 @@ import torch
 from pymatgen import core as mg
 from .encoder import Encoder,Identity
 from sklearn import metrics
+
 
 gfa_dataset_file = 'gfa_dataset.txt'
 z_row_column_file = 'Z_row_column.txt'
@@ -35,7 +39,8 @@ def convert_hv_to_gpa(hv_list):
 def check_cuda():
   if torch.cuda.is_available():
     cuda = True
-    os.environ['CUDA_VISIBLE_DEVICES'] = "0"
+    os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+    os.environ['CUDA_VISIBLE_DEVICES'] = "1"
   else:
     cuda = False
   return cuda
@@ -50,7 +55,8 @@ def special_formatting(comp):
   return string
 
 
-def image(i,property_list = property_list,element_name = element_name,RC = RC):#PTR psuedoimage using special formula
+def image(i,property_list = property_list,element_name = element_name,RC = RC, normalized=True):
+  #PTR psuedoimage using pymatgen
     #i0='Mo.5Nb.5'
     #i=i0.split(' ')[0]
     X= [[[0.0 for ai in range(18)]for aj in range(9)] for ak in range(1) ]  
@@ -65,9 +71,13 @@ def image(i,property_list = property_list,element_name = element_name,RC = RC):#
 
     #properties at the first row, from 5th to 8th column for hardness
     X = np.array(X)
-    return X
+    if normalized:
+      return X/np.sum(X)
+    else:
+      return X
 
-def image_modified(i0,property_list = property_list,element_name = element_name,RC = RC):#PTR psuedoimage using special formula
+def image_modified(i0,property_list = property_list,element_name = element_name,RC = RC):
+  #PTR psuedoimage using special formula
     #i0='Mo.5Nb.5'
     i=i0.split(' ')[1]
     X= [[[0.0 for ai in range(18)]for aj in range(9)] for ak in range(1) ]  
@@ -82,7 +92,7 @@ def image_modified(i0,property_list = property_list,element_name = element_name,
 
     #properties at the first row, from 5th to 8th column for hardness
     X = np.array(X)
-    return X
+    return X/np.sum(X)
 
 def PTR(i,property_list = property_list,element_name = element_name,Z_row_column = Z_row_column):#periodical table representation
     #i='4 La$_{66}$Al$_{14}$Cu$_{10}$Ni$_{10}$ [c][15]'
