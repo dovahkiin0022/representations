@@ -1,6 +1,3 @@
-
-
-
 import re
 import numpy as np
 import copy
@@ -23,14 +20,6 @@ new_index=[int(i[4]) for i in RC]#new order
 Z_row_column = pickle.load(open(common_path.format(z_row_column_file), 'rb'))
 [property_name_list,property_list,element_name,_]=pickle.load(open(common_path.format(element_property_file), 'rb'))
 
-saved_models_path = 'saved_models'
-type = 'PTR'
-filename = 'PTR_Encoder.pt'
-if os.path.exists(f'{saved_models_path}/{type}/{filename}'):
-    PTR_encoder =  joblib.load(f'{saved_models_path}/{type}/{filename}')
-else:
-    print('No file found!')
-PTR_encoder.mapf = Identity()
 
 def convert_hv_to_gpa(hv_list):
   gpa_list = [x*0.009807 for x in hv_list]
@@ -312,7 +301,7 @@ def alt_read_gfa_dataset(dataset = gfa_dataset,to_discard = ['Rf','Db','Sg','Bh'
     Y = []
     p = []
     for i in  dataset:
-        p.extend([0,1])
+        
         gfa=re.findall('\[[a-c]?\]',i)[0]
         tx1_element=re.findall('[A-Z][a-z]?', i)#[B, Fe, P,No]
         tx2_temp=re.findall('\$_{[0-9.]+}\$', i)#[$_{[50]}$, ] [50 30 20]
@@ -327,4 +316,5 @@ def alt_read_gfa_dataset(dataset = gfa_dataset,to_discard = ['Rf','Db','Sg','Bh'
         if len(set(tx1_element).intersection(set(to_discard))) == 0:
             str_comp.extend([test]*2)
             Y.extend(y)
+            p.extend([0,1])
     return pymatgen_comp(str_comp),Y, p

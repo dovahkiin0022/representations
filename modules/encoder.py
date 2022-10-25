@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 
+import torch
+import torch.nn as nn
 class Encoder(nn.Module):
     def __init__(self,input_size, output_size,batch_size=1):
         super(Encoder,self).__init__()
@@ -10,6 +12,7 @@ class Encoder(nn.Module):
         self.activation_fn = torch.nn.ReLU()
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2,padding = 1)
         self.mapf = nn.Linear(32*2*4 + 1, output_size)
+        self.last_act = nn.Sigmoid()
 
     def hidden_rep(self,x):
         x = self.activation_fn(self.conv1(x))
@@ -24,8 +27,9 @@ class Encoder(nn.Module):
 
     def forward(self,x,x1):
         x = self.hidden_rep(x)
-        xf = torch.cat((x,x1),axis=1)
-        return torch.nn.Sigmoid()(self.mapf(xf))
+        xf = torch.cat((x,x1),dim=1)
+        xf = self.last_act(self.mapf(xf))
+        return xf
 
 class Identity(nn.Module):
     def __init__(self):
@@ -45,6 +49,7 @@ class Encoder1D(nn.Module):
       self.activation_fn = torch.nn.ReLU()
       self.pool = nn.MaxPool1d(kernel_size=2, stride=2,padding = 1)
       self.mapf = nn.Linear(288+1, output_size)
+      self.last_act = nn.Sigmoid()
 
     def hidden_rep(self,x):
         x = self.activation_fn(self.conv1(x))
@@ -59,8 +64,9 @@ class Encoder1D(nn.Module):
 
     def forward(self,x,x1):
         x = self.hidden_rep(x)
-        xf = torch.cat((x,x1),axis=1)
-        return torch.nn.Sigmoid()(self.mapf(xf))
+        xf = torch.cat((x,x1),dim=1)
+        xf = self.last_act(self.mapf(xf))
+        return xf
 
 class EncoderDNN(nn.Module):
     def __init__(self,in_size,  n_hidden_layers, hidden_size, out_size):
@@ -73,11 +79,13 @@ class EncoderDNN(nn.Module):
         self.hidden_rep = nn.Sequential(*block(in_size,hidden_size),
         *n_hidden_layers*block(hidden_size,hidden_size))
         self.mapf = nn.Linear(hidden_size+1,out_size)
+        self.last_act = nn.Sigmoid()
     
     def forward(self,x,x1):
         x = self.hidden_rep(x)
-        xf = torch.cat((x,x1),axis=1)
-        return torch.nn.Sigmoid()(self.mapf(xf))
+        xf = torch.cat((x,x1),dim=1)
+        xf = self.last_act(self.mapf(xf))
+        return xf
 
 def count_parameters(model): 
     return sum(p.numel() for p in model.parameters() if p.requires_grad)

@@ -35,17 +35,15 @@ def get_PTR_features(comps,cuda=check_cuda()):
   saved_models_path = 'saved_models/best_models'
   filename = '2DEncoder_PTR.pt'
   if os.path.exists(f'{saved_models_path}/{filename}'):
-    PTR_encoder =  joblib.load(f'{saved_models_path}/{filename}')
+    PTR_encoder =  torch.jit.load(os.path.join(saved_models_path,filename), map_location='cpu')
   else:
     print('No file found!')
   #PTR_encoder.mapf = Identity()
   comps = pymatgen_comp(comps)
   comps_dset = data_generator_img(comps)
   test = torch.from_numpy(comps_dset.real_data.astype('float32'))
-  if cuda:
-    test = test.cuda()
   with torch.no_grad():
-    test_encoding = PTR_encoder.hidden_rep(test).to('cpu').detach().numpy()
+    test_encoding = PTR_encoder.hidden_rep(test)
   return test_encoding
 
 
@@ -101,7 +99,7 @@ def enc1d_features(comps, name, cuda=check_cuda()):
   if name not in types:
     print('Invalid format')
   else:
-    encoder1D = joblib.load(os.path.join(location,'1DEncoder_{}.pt'.format(name)))
+    encoder1D = torch.jit.load(os.path.join(location,'1DEncoder_{}.pt'.format(name)), map_location='cpu')
     #encoder1D.mapf = Identity()
   comps = pymatgen_comp(comps)
   if name == 'atomic':
@@ -115,10 +113,8 @@ def enc1d_features(comps, name, cuda=check_cuda()):
   elif name == 'dense':
     formatted_comps,_ = get_random_features_dense(comps)
   test = torch.from_numpy(formatted_comps.astype('float32'))
-  if cuda:
-    test = test.cuda()
   with torch.no_grad():
-    test_encoding = encoder1D.hidden_rep(test).to('cpu').detach().numpy()
+    test_encoding = encoder1D.hidden_rep(test)
   return test_encoding
 
 
