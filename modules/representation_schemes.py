@@ -9,6 +9,8 @@ from .function import pymatgen_comp, check_cuda, data_generator_img, data_genera
 from .encoder import Encoder,Identity
 from .rom import calc_weight_dev, calc_grp_dev, calc_specific_dens_dev, calc_vec, calc_melting_t, calc_bulk, calc_entropy_mixing, get_rom_density
 
+np.random.seed(0)
+
 gfa_dataset_file = 'gfa_dataset.txt'
 z_row_column_file = 'Z_row_column.txt'
 element_property_file = 'element_property.txt'
@@ -28,7 +30,8 @@ with open(alternate_orders_file,'rb') as fid:
     alternate_order_dict = pickle.load(fid)
 pettifor_order = alternate_order_dict['pettifor']
 modified_pettifor_order = alternate_order_dict['modified_pettifor']
-random_order = sorted(atomic_number_order)
+random_order_alpha = sorted(atomic_number_order)
+random_order_rand = np.random.permutation(atomic_number_order)
 
 
 def get_PTR_features(comps,cuda=check_cuda()):
@@ -83,12 +86,16 @@ def get_modified_pettifor_features(comps,el_list = modified_pettifor_order):
     dset = data_generator_vec(comps,el_list)
     return dset.real_data.reshape(-1,1,len(el_list)), dset.elements
 
-def get_random_features(comps, el_list = random_order):
+def get_random_features(comps, alpha = True):
+    if alpha:
+      el_list = random_order_alpha
+    else:
+      el_list = random_order_rand
     comps = pymatgen_comp(comps)
     dset = data_generator_vec(comps,el_list)
     return dset.real_data.reshape(-1,1,len(el_list)), dset.elements
 
-def get_random_features_dense(comps, el_list = random_order):
+def get_random_features_dense(comps,el_list = random_order_alpha):
     comps = pymatgen_comp(comps)
     dset = data_generator_vec(comps,el_list)
     return dset.real_data.reshape(-1, len(el_list)), dset.elements
@@ -112,6 +119,8 @@ def enc1d_features(comps, name, cuda=check_cuda()):
     formatted_comps,_ = get_random_features(comps)
   elif name == 'dense':
     formatted_comps,_ = get_random_features_dense(comps)
+  elif name == 'random-tr':
+    formatted_comps,_ = get_random_features_dense(comps, alpha=False)
   test = torch.from_numpy(formatted_comps.astype('float32'))
   with torch.no_grad():
     test_encoding = encoder1D.hidden_rep(test)

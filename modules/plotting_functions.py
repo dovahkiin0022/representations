@@ -101,7 +101,7 @@ def periodic_table_heatmap(
         vmax=max_val + 0.001,
         alpha=alpha, capstyle='round'
     )
-    cbar = fig.colorbar(heatmap)
+    cbar = fig.colorbar(heatmap, location = 'bottom', fraction=0.046, pad=0.04)
 
     # Grey out missing elements in input data
     cbar.cmap.set_under(blank_color)
@@ -164,4 +164,4 @@ def periodic_table_heatmap(
     if save_name is not None:
         plt.savefig(save_name, dpi=dpi)
 
-    return plt
+    return ax
