@@ -101,7 +101,7 @@ def get_random_features_dense(comps,el_list = random_order_alpha):
     return dset.real_data.reshape(-1, len(el_list)), dset.elements
 
 def enc1d_features(comps, name, cuda=check_cuda()):
-  types = ['atomic','pettifor','mod_pettifor','random','dense']
+  types = ['atomic','pettifor','mod_pettifor','random','dense','random-tr']
   location = 'saved_models/best_models'
   if name not in types:
     print('Invalid format')
@@ -120,7 +120,7 @@ def enc1d_features(comps, name, cuda=check_cuda()):
   elif name == 'dense':
     formatted_comps,_ = get_random_features_dense(comps)
   elif name == 'random-tr':
-    formatted_comps,_ = get_random_features_dense(comps, alpha=False)
+    formatted_comps,_ = get_random_features(comps, alpha=False)
   test = torch.from_numpy(formatted_comps.astype('float32'))
   with torch.no_grad():
     test_encoding = encoder1D.hidden_rep(test)
