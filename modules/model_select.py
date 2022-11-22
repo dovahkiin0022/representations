@@ -35,6 +35,7 @@ def model_pipeline():
     pipelines.append(('SVR-poly',Pipeline([('Scaler', StandardScaler()),('SVR-poly',SVR(kernel = 'poly'))])))
     pipelines.append(('SVR-rbf',Pipeline([('Scaler', StandardScaler()),('SVR-rbf',SVR(kernel = 'rbf'))])))
     pipelines.append(('MLP', Pipeline([('Scaler', StandardScaler()),('MLP',MLPRegressor())])))
+    pipelines.append(('MLP2', Pipeline([('Scaler', StandardScaler()),('MLP',MLPRegressor((42,42,42),random_state=0))])))
     return pipelines
 
 def get_scoring_dict():
