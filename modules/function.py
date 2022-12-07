@@ -8,6 +8,7 @@ import torch
 from pymatgen import core as mg
 from .encoder import Encoder,Identity
 from sklearn import metrics
+#from modules.representation_schemes import get_atomic_number_features, get_pettifor_features, get_modified_pettifor_features, get_random_features, get_random_features_dense, random_order_alpha
 
 
 gfa_dataset_file = 'gfa_dataset.txt'
@@ -318,3 +319,21 @@ def alt_read_gfa_dataset(dataset = gfa_dataset,to_discard = ['Rf','Db','Sg','Bh'
             Y.extend(y)
             p.extend([0,1])
     return pymatgen_comp(str_comp),Y, p
+
+def read_gfa_dataset(dataset = gfa_dataset,to_discard = ['Rf','Db','Sg','Bh','Hs']):
+    X = []
+    Y = []
+    p = []
+    for i in  dataset:
+      tx1_element=re.findall('[A-Z][a-z]?', i)
+      X_temp, p_temp, Y_temp = PTR(i)
+      if len(set(tx1_element).intersection(set(to_discard))) == 0:
+            X.extend(X_temp)
+            Y.extend(Y_temp)
+            p.extend(p_temp)
+    X = np.array(X).reshape(-1, 1,9, 18).astype('float32') 
+    Y = np.array(Y).reshape(-1,1).astype('float32')
+    p = np.array(p).reshape(-1,1).astype('float32')
+    return X ,Y, p
+
+
