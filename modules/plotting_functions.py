@@ -1,10 +1,13 @@
 import numpy as np
 from matplotlib import cm, colors
-
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from pymatgen.core.periodic_table import Element
 
 def periodic_table_heatmap(
     elemental_data,
+    fig,
+    ax,
     cbar_label="",
     cbar_label_size=14,
     show_plot=False,
@@ -85,9 +88,8 @@ def periodic_table_heatmap(
         value_table[plot_row - 1, plot_group - 1] = value
 
     # Initialize the plt object
-    import matplotlib.pyplot as plt
 
-    fig, ax = plt.subplots()
+
     plt.gcf().set_size_inches(12, 6)
 
     # We set nan type values to masked values (ie blank spaces)
@@ -101,7 +103,10 @@ def periodic_table_heatmap(
         vmax=max_val + 0.001,
         alpha=alpha, capstyle='round'
     )
-    cbar = fig.colorbar(heatmap, location = 'bottom', fraction=0.046, pad=0.04)
+
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes('bottom', size='5%',pad=0.04)
+    cbar = fig.colorbar(heatmap, cax = cax, orientation = 'horizontal')
 
     # Grey out missing elements in input data
     cbar.cmap.set_under(blank_color)
@@ -126,7 +131,7 @@ def periodic_table_heatmap(
                 number = Element.from_row_and_group(i + 1, j + 1).Z
                 rgba = scalar_cmap.to_rgba(el)
                 fontcolor = "black"
-                plt.text(
+                ax.text(
                     j + 0.5,
                     i + 0.5,
                     symbol,
@@ -136,7 +141,7 @@ def periodic_table_heatmap(
                     color=fontcolor,
                 )
 
-                plt.text(
+                """ ax.text(
                     j + 0.25,
                     i+ 0.25,
                     number,
@@ -144,9 +149,11 @@ def periodic_table_heatmap(
                     verticalalignment="center",
                     fontsize=value_fontsize,
                     color=fontcolor,
-                )
-                if el != blank_value and value_format is not None:
-                    plt.text(
+                ) """
+                
+                
+                """ if el != blank_value and value_format is not None:
+                    ax.text(
                         j + 0.5,
                         i + 0.8,
                         value_format % el,
@@ -154,7 +161,7 @@ def periodic_table_heatmap(
                         verticalalignment="center",
                         fontsize=value_fontsize,
                         color=fontcolor,
-                    )
+                    ) """
 
     plt.tight_layout()
 
