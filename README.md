@@ -2,7 +2,7 @@
 
 by Arindam Debnath, Wesley F. Reinhart.
 
-This repository is the official implementation of [Investigating representation schemes for surrogate modeling of High Entropy Alloys](https://arxiv.org/pdf/2301.00179.pdf), which has been submitted for publication in *Computational Materials Science*.
+This repository is the official implementation of '[Investigating representation schemes for surrogate modeling of High Entropy Alloys]'(https://arxiv.org/pdf/2301.00179.pdf), which has been submitted for publication in *Computational Materials Science*.
 
 In this paper, we have systematically compared several representation schemes for atomic fractions of alloys on the basis of their performance in single-task deep learning models and in transfer learning scenarios.
 
@@ -78,7 +78,11 @@ The repository contains the following directories:
 
 ## Dataset 
 
-The dataset contains 
+The `dataset` folder contains the following files - 
+
+* alternate_orders.pkl - A pickle file containing the 1D Pettifor and Modified Pettifor ordering
+* hardness.csv - The hardness dataset from the paper '[A machine learning-based alloy
+design system to facilitate the rational design of high entropy alloys with enhanced hardness]'(https://doi.org/10.1016/j.actamat.2021.117431)
 
 
 ## Files from GTDL paper
@@ -91,11 +95,9 @@ All the figures depicting the results from the various tests performed are conta
 
 ## Modules
 
-
+Contains the 
 
 ## Miscellaneous 
 
 
 
-
-All the functions used are in the `module` folder. 
