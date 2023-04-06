@@ -90,7 +90,13 @@ design system to facilitate the rational design of high entropy alloys with enha
 
 ## Files from GTDL paper
 
-This folder contains 
+This folder contains the necessary files needed for the 2D Periodic Table Representation as well as the datasets from the paper [A general and transferable deep learning framework for predicting phase formation in materials](https://doi.org/10.1038/s41524-020-00488-z) (the github repository can be found [here](https://github.com/sf254/glass-froming-ability-prediction.git)). These include - 
+
+* element_property.txt - Necessary file for the 2D Periodic Table Representation.
+* gao_data.txt - The High Entropy Alloy phase dataset. 
+* gfa_dataset.txt - The Glass Formation Ability dataset.
+* Z_row_column.txt - Necessary file for the 2D Periodic Table Representation.
+
 
 ## Figures
 
@@ -98,7 +104,7 @@ All the figures depicting the results from the various tests performed are conta
 
 ## Modules
 
-Contains the 
+The `modules` folder contains several .py files with necessary functions for 
 
 ## Miscellaneous 
 
