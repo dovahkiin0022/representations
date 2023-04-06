@@ -76,5 +76,26 @@ The repository contains the following directories:
             
 ```
 
+## Dataset 
+
+The dataset contains 
+
+
+## Files from GTDL paper
+
+This folder contains 
+
+## Figures
+
+All the figures depicting the results from the various tests performed are contained in this folder.
+
+## Modules
+
+
+
+## Miscellaneous 
+
+
+
 
 All the functions used are in the `module` folder. 
