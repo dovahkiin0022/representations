@@ -27,3 +27,52 @@ conda env create -f environment.yml
 
 # Implementation
 
+All the functions used are in the `module` folder. 
+
+```
+.
+├── dataset
+│   ├── alternate_orders.pkl
+│   ├── hardness.csv
+│   ├── periodic_table.csv
+│   ├── yield_strength.csv
+│   └── yield_strength_original.csv
+├── environment.yml
+├── figures
+├── Files_from_GTDL_paper
+│   ├── element_property.txt
+│   ├── gao_data.txt
+│   ├── gfa_dataset.txt
+│   └── Z_row_column.txt
+├── misc
+├── modules
+│   ├── encoder.py
+│   ├── function.py
+│   ├── __init__.py
+│   ├── model_select.py
+│   ├── plotting_functions.py
+│   ├── __pycache__
+│   └── representation_schemes.py
+├── notebooks
+│   ├── 0_encoder_training.ipynb
+│   ├── 1a_transfer_learning_phase.ipynb
+│   ├── 1b_transfer_learning_hardness.ipynb
+│   ├── 1c_transfer_learning_yield_strength.ipynb
+│   ├── 2a_generalizability_phase.ipynb
+│   ├── 2b_generalizability_hardness.ipynb
+│   ├── 2c_generalizability_ys.ipynb
+│   └── visualization.ipynb
+├── README.md
+├── results
+└── saved_models
+    ├── best_models
+    └── Encoders
+        ├── atomic
+        ├── dense
+        ├── mod_pettifor
+        ├── pettifor
+        ├── PTR
+        ├── random
+        └── random-tr
+            
+```
