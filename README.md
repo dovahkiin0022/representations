@@ -27,8 +27,7 @@ conda env create -f environment.yml
 
 # Implementation
 
-All the functions used are in the `module` folder. 
-
+The repository contains the following directories:
 ```
 .
 ├── dataset
@@ -76,3 +75,6 @@ All the functions used are in the `module` folder.
         └── random-tr
             
 ```
+
+
+All the functions used are in the `module` folder. 
