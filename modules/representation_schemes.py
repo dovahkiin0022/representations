@@ -7,7 +7,6 @@ import pandas as pd
 import os
 from .function import pymatgen_comp, check_cuda, data_generator_img, data_generator_vec, alt_read_gfa_dataset
 from .encoder import Encoder,Identity
-from .rom import calc_weight_dev, calc_grp_dev, calc_specific_dens_dev, calc_vec, calc_melting_t, calc_bulk, calc_entropy_mixing, get_rom_density
 
 np.random.seed(0)
 
@@ -99,24 +98,6 @@ def get_random_features_dense(comps,el_list = random_order_alpha):
     comps = pymatgen_comp(comps)
     dset = data_generator_vec(comps,el_list)
     return dset.real_data.reshape(-1, len(el_list)), dset.elements
-
-def get_1D_features_gfa(k:str):
-    comp_gfa, y, p = alt_read_gfa_dataset()
-    y = np.array(y).reshape(-1,1).astype('float32')
-    p = np.array(p).reshape(-1,1).astype('float32')
-    if k not in ['atomic','pettifor','mod_pettifor','random']:
-        print('Unsupported format')
-        return None, None, None
-    else:
-        if k == 'atomic':
-            comp, at_order  = get_atomic_number_features(comp_gfa)
-        elif k == 'pettifor':
-            comp, _  = get_pettifor_features(comp_gfa)
-        elif k == 'mod_pettifor':
-            comp, _  = get_modified_pettifor_features(comp_gfa)
-        elif k == 'random':
-            comp,_ = get_random_features(comp_gfa)
-        return comp, y, p
 
 def get_dense_features_gfa():
     comp_gfa, y, p = alt_read_gfa_dataset()

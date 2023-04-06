@@ -87,5 +87,21 @@ class EncoderDNN(nn.Module):
         xf = self.last_act(self.mapf(xf))
         return xf
 
-def count_parameters(model): 
+
+def count_parameters(model):
+    """
+    This function takes a PyTorch model as input and returns the total number of trainable parameters in the model.
+
+    Args:
+    - model: A PyTorch model
+
+    Returns:
+    - total_params: An integer representing the total number of trainable parameters in the model
+
+    Example:
+    >>> model = nn.Sequential(nn.Linear(10, 5), nn.ReLU(), nn.Linear(5, 1))
+    >>> count_parameters(model)
+    56
+    """
+    
     return sum(p.numel() for p in model.parameters() if p.requires_grad)

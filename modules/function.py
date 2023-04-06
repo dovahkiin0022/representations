@@ -23,6 +23,15 @@ Z_row_column = pickle.load(open(common_path.format(z_row_column_file), 'rb'))
 
 
 def convert_hv_to_gpa(hv_list):
+  """
+    Convert a list of Vickers hardness values to GPa values using the conversion factor of 0.009807.
+    
+    Parameters:
+    hv_list (list): A list of Vickers hardness values to be converted to GPa.
+    
+    Returns:
+    numpy.ndarray: An array of GPa values corresponding to the Vickers hardness values.
+    """
   gpa_list = [x*0.009807 for x in hv_list]
   return np.array(gpa_list)
 
@@ -256,6 +265,18 @@ def stratify_data(data, min, max, by):
 
 
 def get_elem_count(comp_list:list):
+  """
+This function takes a list of chemical compositions as input and returns a dictionary containing the count of each element in all the compositions in the input list.
+
+Parameters:
+comp_list (list): A list of chemical compositions in string format.
+
+Returns:
+elem_dict (dict): A dictionary containing the count of each element in all the compositions in the input list.
+
+Example:
+get_elem_count(['NaCl', 'Fe2O3', 'H2O']) returns {'Na': 1, 'Cl': 1, 'Fe': 2, 'O': 3, 'H': 2}
+"""
   elem_dict = {}
   
   for c in comp_list:
