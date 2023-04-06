@@ -61,18 +61,10 @@ The repository contains the following directories:
 │   ├── 2b_generalizability_hardness.ipynb
 │   ├── 2c_generalizability_ys.ipynb
 │   └── visualization.ipynb
+├── LICENSE
 ├── README.md
 ├── results
 └── saved_models
-    ├── best_models
-    └── Encoders
-        ├── atomic
-        ├── dense
-        ├── mod_pettifor
-        ├── pettifor
-        ├── PTR
-        ├── random
-        └── random-tr
             
 ```
 
@@ -87,6 +79,9 @@ design system to facilitate the rational design of high entropy alloys with enha
 * yield_strength_original.csv - The yield strength dataset from the paper [Comprehensive data compilation on the mechanical properties of refractory high-entropy alloys](https://doi.org/10.1016/j.dib.2018.10.071)
 * yield_strength.csv - The yield strength dataset obtained after removal of less frequently occuring elements from yield_strength_original.csv 
 
+## Figures
+
+All the figures depicting the results from the various tests performed are contained in this folder.
 
 ## Files from GTDL paper
 
@@ -98,16 +93,42 @@ This folder contains the necessary files needed for the 2D Periodic Table Repres
 * Z_row_column.txt - Necessary file for the 2D Periodic Table Representation.
 
 
-## Figures
-
-All the figures depicting the results from the various tests performed are contained in this folder.
-
-## Modules
-
-The `modules` folder contains several .py files with necessary functions for 
-
 ## Miscellaneous 
 
 The information necessary for reproducing the results in the paper (like the dataset splits used for the the 10-fold cross validation) have been stored in the `misc` folder as pickle or json files.
+
+## Modules
+
+The `modules` folder contains several .py files with necessary functions and codes for the project.
+
+* encoder.py - Contains the Dense Neural Networks and the Convolutional Neural Networks for the single-task predictions
+* function.py - Contains some general functions as well as functions for converting compositions into the PTR image.
+* model_select.py - Contains code to evaluate several out-of-the-box `scikit-learn` regression models for the regression task using Root Mean Squared Error and Pearson's Correlation Coefficient.
+* plotting_functions.py - Contains code for generating the periodic table heatmap.
+* representation_schemes.py - Contains code for converting compositions into 1D representations as well as obtaining the latent codes from the trained single-task models.
+
+## Notebooks
+
+The `notebook` folder contains the Jupyter notebooks used for running the codes for the different tests. 
+
+* 0_encoder_training.ipynb - This notebook contains the code for training the different single-task models using the 0D, 1D, 2D representations on the task of predicting the Glass Formation Ability of a given alloy.
+* 1a_transfer_learning_phase.ipynb - This notebook contains the code for training transfer learning models using the latent codes from the trained single-task models for the task of High Entropy Alloy phase prediction. 
+* 1b_transfer_learning_hardness.ipynb - This notebook contains the code for training transfer learning models using the latent codes from the trained single-task models for the task of High Entropy Alloy hardness prediction. 
+* 1c_transfer_learning_yield_strength.ipynb - This notebook contains the code for training transfer learning models using the latent codes from the trained single-task models for the task of High Entropy Alloy yield strength prediction. 
+* 2a_generalizability_phase.ipynb - This notebook contains the code for training the transfer learning models on different ratios of splitting the High Entropy Alloy phase dataset to evaluate the transfer learning models' ability to generalize to new data.
+* 2b_generalizability_hardness.ipynb - This notebook contains the code for training the transfer learning models on different ratios of splitting the High Entropy Alloy hardness dataset to evaluate the transfer learning models' ability to generalize to new data.
+* 2c_generalizability_ys.ipynb - This notebook contains the code for training the transfer learning models on different ratios of splitting the High Entropy Alloy yield strength dataset to evaluate the transfer learning models' ability to generalize to new data.
+* visualization.ipynb - This notebook contains code to generate the figures used in the paper.
+
+## Results
+
+The results from the different Jupyter notebooks are stored as json objects in the `results` folder.
+
+## Saved models
+
+The single-task models are stored as `pytorch` objects in the `saved_models` folder.
+
+
+
 
 
