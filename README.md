@@ -6,8 +6,17 @@ This repository is the official implementation of [Investigating representation 
 
 In this paper, we have systematically compared several representation schemes for atomic fractions of alloys on the basis of their performance in single-task deep learning models and in transfer learning scenarios.
 
-<img width="2088" alt="image" src="https://user-images.githubusercontent.com/64245681/230442112-4f5a2eb6-58b5-4bdb-83b4-155025c5faf9.png">
+<img width="2088" alt="image" src="https://user-images.githubusercontent.com/64245681/230444106-e58c25b2-e130-429a-b5ba-b3dea68da774.png">
 
+# Getting the code
+
+You can download a copy of all the files in this repository by cloning the git repository:
+
+```
+git clone https://github.com/dovahkiin0022/representations.git
+```
+
+A copy of the repository is also archived at 
 
 # Installation
 
@@ -15,3 +24,6 @@ Run the following command to install the required dependencies specified in the 
 ```
 conda env create -f environment.yml
 ```
+
+# Implementation
+
