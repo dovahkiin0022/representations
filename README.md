@@ -16,7 +16,7 @@ You can download a copy of all the files in this repository by cloning the git r
 git clone https://github.com/dovahkiin0022/representations.git
 ```
 
-A copy of the repository is also archived at 
+A copy of the repository is also archived at [![DOI](https://zenodo.org/badge/528897862.svg)](https://zenodo.org/badge/latestdoi/528897862)
 
 # Installation
 
