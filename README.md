@@ -11,7 +11,7 @@ In this paper, we have systematically compared several representation schemes fo
 
 # Installation
 
-Run the following command to install dependencies
+Run the following command to install the required dependencies specified in the file `environment.yml`
 ```
 conda env create -f environment.yml
 ```
