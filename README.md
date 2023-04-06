@@ -83,6 +83,8 @@ The `dataset` folder contains the following files -
 * alternate_orders.pkl - A pickle file containing the 1D Pettifor and Modified Pettifor ordering
 * hardness.csv - The hardness dataset from the paper [A machine learning-based alloy
 design system to facilitate the rational design of high entropy alloys with enhanced hardness](https://doi.org/10.1016/j.actamat.2021.117431)
+* periodic_table.csv - A csv file containing properties for the elements of the periodic table, from [this repository](https://gist.github.com/GoodmanSciences/c2dd862cd38f21b0ad36b8f96b4bf1ee)
+* 
 
 
 ## Files from GTDL paper
